@@ -1,7 +1,7 @@
 import cv2
 import numpy
 
-color = (0, 0, 0)
+color = (0, 255, 0)
 
 def caption(img, caption):
 	imgc = img.copy()
@@ -27,23 +27,29 @@ gaussian = []
 median = []
 
 for i in xrange(len(blur_kernel_sizes)):
+	roll_kernel = [[0,-1,0],[-1,4,-1],[0,-1,0]]	#vertical + horisontal
+	roll_kernel_m = numpy.asarray(roll_kernel, numpy.float32)
+
 	kernel = numpy.ones((blur_kernel_sizes[i], blur_kernel_sizes[i]), numpy.float32)/blur_kernel_sizes[i]**2
 	tmp = cv2.filter2D(img, -1, kernel)
+	tmp = cv2.filter2D(tmp, -1, roll_kernel_m)
 	tmp = caption(tmp, "average, {a}x{a}".format(a = blur_kernel_sizes[i]))
 	average.append(tmp)
 
 	kernel = cv2.getGaussianKernel(blur_kernel_sizes[i], -1)
 	tmp = cv2.filter2D(img, -1, kernel)
+	tmp = cv2.filter2D(tmp, -1, roll_kernel_m)
 	tmp = caption(tmp, "gaussian, {a}x{a}".format(a = blur_kernel_sizes[i]))
 	gaussian.append(tmp)
 
 	tmp = cv2.medianBlur(img, blur_kernel_sizes[i])
+	tmp = cv2.filter2D(tmp, -1, roll_kernel_m)
 	tmp = caption(tmp, "median, {a}x{a}".format(a = blur_kernel_sizes[i]))
 	median.append(tmp)
 
 result = numpy.vstack(( numpy.hstack((average[:])), numpy.hstack((gaussian[:])), numpy.hstack((median[:])) ))
 
 cv2.imshow('w1', result)
-cv2.imwrite('blur_gauss.png', result)
+cv2.imwrite('blur_roll_gauss.png', result)
 cv2.waitKey(0)
 cv2.destroyAllWindows()

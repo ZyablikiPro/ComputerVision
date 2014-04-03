@@ -41,6 +41,7 @@ for kernel in kernels:
 
 result = numpy.vstack(( numpy.hstack((results[0:4])), numpy.hstack((results[4:8])) ))
 
+cv2.imwrite('rolls.png', result)
 cv2.imshow('roll', result)
 
 cv2.waitKey(0)
